@@ -17,6 +17,6 @@ class SpotifyLyricSearch:
 
 if __name__ == '__main__':
     sls = SpotifyLyricSearch(input("Enter Lyrics please: "))
-    print('/n')
+    print('\n')
     sls.find_song()
     
