@@ -1,4 +1,4 @@
-
+#
 import lyricsgenius
 from dotenv import load_dotenv
 import os
@@ -12,8 +12,7 @@ SPOTIFY_OAUTH= os.getenv('SPOTIFY_OAUTH')
 
 class SpotifyLyricSearch: 
     def __init__(self):
-      
-        self.song_info={}
+        self.songs_info={}
 
     def find_song(self,lyrics):
 
@@ -27,7 +26,7 @@ class SpotifyLyricSearch:
         for i,hit in enumerate(request['hits']):
             print('{0}: {1}\n'.format(i+1,hit['result']['full_title']))
 
-        i = input("Which number is your song? Press 0 for None: \n")
+        i = input("Which number is your song? Press 0 for None: ")
         if i == '0': 
             print("Not listed...")
             return None
@@ -35,11 +34,8 @@ class SpotifyLyricSearch:
         song_name= request['hits'][int(i)-1]['result']['title']
         artist = request['hits'][int(i)-1]['result']['primary_artist']['name']
         
-        self.song_info={
-            "title" : song_name,
-            "artist": artist,
+        self.songs_info[song_name]={
             "uri": self.get_spotify_uri(song_name,artist)
-            
         }
     
     def create_playlist(self):
@@ -79,7 +75,9 @@ class SpotifyLyricSearch:
             }
         
         )
-        print(query)
+        #New Spotify Token is needed for status code 401
+        if response.status_code != 200:
+            raise ResponseException(response.status_code,response.reason)
 
 
         response_json = response.json()
@@ -90,19 +88,25 @@ class SpotifyLyricSearch:
             uri = songs[0]["uri"]
             return uri
         except:
+            print(f"Couldn't find {song_name} by {artist}")
             return None
             
         
-    def add_song(self):
-        self.find_song(input("Enter Lyrics"))
+    def add_songs(self):
 
- 
-        uri = self.song_info["uri"]
-      
+        while True:
+            q= input("Enter Lyrics, or type \"quit()\" to stop searching: ") 
+            if(q=="quit()"): break
+
+            self.find_song(q)
         
+
+        uris= [song["uri"] for _,song in self.songs_info.items() if song["uri"]!=None]
+        
+
         playlist_id = self.create_playlist()
 
-        request_data = json.dumps([uri])
+        request_data = json.dumps(uris)
         query = "https://api.spotify.com/v1/playlists/{}/tracks".format(playlist_id)
 
         response = requests.post(
@@ -116,13 +120,11 @@ class SpotifyLyricSearch:
 
         # check for valid response status
         if response.status_code != 201:
-            raise ResponseException(response.status_code)
+            raise ResponseException(response.status_code,response.reason)
 
         response_json = response.json()
         return response_json
 
 if __name__ == '__main__':
     sls = SpotifyLyricSearch()
-    print('\n')
-    sls.add_song()    
-    
+    sls.add_songs()    
