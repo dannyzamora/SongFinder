@@ -5,7 +5,7 @@ Script that uses Genius and Spotify API to search and add songs into a playlist 
 
 # Special Thanks
 
-This code was inspire by Youtuber **The ComeUp**. Please check out their code [code](https://github.com/TheComeUpCode/SpotifyGeneratePlaylist). 
+This code was inspire by Youtuber **The ComeUp**. Please check out their [code](https://github.com/TheComeUpCode/SpotifyGeneratePlaylist). 
 
 ## Setup
 
